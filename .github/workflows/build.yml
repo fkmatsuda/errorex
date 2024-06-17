@@ -27,7 +27,13 @@ jobs:
         run: go build -v ./...
 
       - name: Run tests
-        run: go test -v ./...
+        run: go test -v -coverprofile=coverage.txt ./...
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          file: ./coverage.txt
+          fail_ci_if_error: true
 
       - uses: sonarsource/sonarqube-scan-action@master
         env:
