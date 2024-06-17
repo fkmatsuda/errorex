@@ -1,4 +1,4 @@
-module github.com/fkmatsuda-dev/errorex
+module github.com/fkmatsuda/errorex
 
 go 1.22.3
 
