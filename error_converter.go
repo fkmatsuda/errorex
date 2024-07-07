@@ -66,9 +66,33 @@ func (u *unknownErrorConverter) ConvertError(err error) EX {
 }
 
 // NewUnknownErrorConverter creates a new unknownErrorConverter
-// this converter will convert any error into an unknown error
-// with the message of the error as the detail
-// this converter should be used as the last handler in the chain
+// this converter will convert any error into an unknown error with the message of the error as the detail.
+// This converter should be used as the last handler in the chain.
 func NewUnknownErrorConverter() ErrorConverter {
 	return &unknownErrorConverter{}
+}
+
+// exErrorConverter checks if the error passed implements EX, and if so, returns the error itself.
+// Otherwise, it attempts to delegate the conversion to the next handler in the chain.
+type exErrorConverter struct {
+	BaseErrorConverter
+}
+
+// ConvertError checks if the error passed as a parameter implements EX.
+// If so, it returns the error. If not, it attempts to delegate the conversion to the next handler.
+func (c *exErrorConverter) ConvertError(err error) EX {
+	if ex, ok := err.(EX); ok {
+		return ex // Returns the parameter value if it is already an EX.
+	}
+	// Delegates to the next handler in the chain if this is not an EX error.
+	return c.BaseErrorConverter.ConvertError(err)
+}
+
+// NewEXErrorConverter creates a new exErrorConverter
+// this converter will check if the error passed implements EX, and if so, returns the error itself, otherwise it attempts to delegate the conversion to the next handler in the chain.
+// This converter should be used as the first handler in the chain.
+func NewEXErrorConverter(next ErrorConverter) ErrorConverter {
+	converter := &exErrorConverter{}
+	converter.SetNext(next)
+	return converter
 }
