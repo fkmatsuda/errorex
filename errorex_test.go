@@ -189,7 +189,7 @@ type mockErrorConverter struct {
 
 func (m *mockErrorConverter) ConvertError(err error) EX {
 	if err.Error() != "test error" {
-		return m.next.ConvertError(err)
+		return m.BaseErrorConverter.ConvertError(err)
 	}
 	return New(ErrCodeMockError, MockErrorDetail{Detail: err.Error()})
 }
