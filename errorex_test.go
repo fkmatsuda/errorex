@@ -106,7 +106,7 @@ func TestIs(t *testing.T) {
 
 }
 
-func TestEX_Error(t *testing.T) {
+func TestEXError(t *testing.T) {
 	t.Run("should return error message in JSON format", func(t *testing.T) {
 		code := "test.format"
 
@@ -120,7 +120,7 @@ func TestEX_Error(t *testing.T) {
 	})
 }
 
-func TestEX_New(t *testing.T) {
+func TestEXNew(t *testing.T) {
 	t.Run("should panic if error code is not registered", func(t *testing.T) {
 		assert.Panics(t, func() {
 			New("unregistered.code", struct{ Message string }{})
@@ -128,7 +128,7 @@ func TestEX_New(t *testing.T) {
 	})
 }
 
-func TestEX_Converter(t *testing.T) {
+func TestEXConverter(t *testing.T) {
 	t.Run("should return an unknown error converter", func(t *testing.T) {
 		converter := NewUnknownErrorConverter()
 		assert.NotNil(t, converter)
@@ -142,18 +142,25 @@ func TestEX_Converter(t *testing.T) {
 		assert.Equal(t, expectedMessage, converter.ConvertError(err).Error())
 	})
 
-	t.Run("should test a second converter", func(t *testing.T) {
+	t.Run("should test a chain", func(t *testing.T) {
 		RegisterErrorCode(ErrCodeMockError, "test description", MockErrorDetail{})
 
 		converter := &mockErrorConverter{}
 		converter.SetNext(NewUnknownErrorConverter())
 
+		exConverter := NewEXErrorConverter(converter)
+
+		ex := New(ErrCodeMockError, MockErrorDetail{Detail: "test detail"})
+		exc := exConverter.ConvertError(ex)
+		assert.Equal(t, ex.Error(), exc.Error())
+		assert.True(t, Is(exc, ErrCodeMockError))
+
 		err := fmt.Errorf("test error")
-		expectedMessage := converter.ConvertError(err)
+		expectedMessage := exConverter.ConvertError(err)
 		assert.True(t, Is(expectedMessage, ErrCodeMockError))
 
 		err = fmt.Errorf("unknown error")
-		unknownError := converter.ConvertError(err)
+		unknownError := exConverter.ConvertError(err)
 		assert.True(t, Is(unknownError, ErrCodeUnknownError))
 	})
 
