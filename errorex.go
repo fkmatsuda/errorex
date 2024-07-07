@@ -1,23 +1,25 @@
 /*
- Copyright (c) 2024 fkmatsuda <fabio@fkmatsuda.dev>
+ *   Copyright (c) 2024 fkmatsuda <fabio@fkmatsuda.dev>
+ *   All rights reserved.
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of
- this software and associated documentation files (the "Software"), to deal in
- the Software without restriction, including without limitation the rights to
- use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- the Software, and to permit persons to whom the Software is furnished to do so,
- subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a copy
+ *   of this software and associated documentation files (the "Software"), to deal
+ *   in the Software without restriction, including without limitation the rights
+ *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *   copies of the Software, and to permit persons to whom the Software is
+ *   furnished to do so, subject to the following conditions:
 
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
+ *   The above copyright notice and this permission notice shall be included in all
+ *   copies or substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *   SOFTWARE.
+ */
 
 package errorex
 
@@ -32,6 +34,8 @@ var (
 )
 
 const (
+	// ErrCodeUnknownError is the errorex code for when the errorex code is unknown
+	ErrCodeUnknownError = "errorex.000"
 	// ErrCodeNotRegistered is the errorex code for when the errorex code is not registered
 	ErrCodeNotRegistered = "errorex.001"
 	// ErrCodeAlreadyRegistered is the errorex code for when the errorex code is already registered
@@ -39,6 +43,11 @@ const (
 	// ErrDetailTypeMismatch is the errorex code for when the errorex detail type does not match the registered type
 	ErrDetailTypeMismatch = "errorex.003"
 )
+
+// UnknownErrorDetail is the type of the detail of an unknown errorex
+type UnknownErrorDetail struct {
+	Detail string `json:"detail"`
+}
 
 // ErrorEXDetail is the type of the detail of an errorex
 type ErrorEXDetail struct {
@@ -53,6 +62,7 @@ type ErrorEXDetailTypeMismatch struct {
 
 func init() {
 	// Register the errorex codes
+	RegisterErrorCode(ErrCodeUnknownError, "Unknown errorex", UnknownErrorDetail{})
 	RegisterErrorCode(ErrCodeNotRegistered, "Errorex code not registered", ErrorEXDetail{})
 	RegisterErrorCode(ErrCodeAlreadyRegistered, "Errorex code already registered", ErrorEXDetail{})
 	RegisterErrorCode(ErrDetailTypeMismatch, "Errorex detail type mismatch", ErrorEXDetailTypeMismatch{})
