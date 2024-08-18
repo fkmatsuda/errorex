@@ -81,6 +81,9 @@ type exErrorConverter struct {
 // ConvertError checks if the error passed as a parameter implements EX.
 // If so, it returns the error. If not, it attempts to delegate the conversion to the next handler.
 func (c *exErrorConverter) ConvertError(err error) EX {
+	if err == nil {
+		return nil
+	}
 	if ex, ok := err.(EX); ok {
 		return ex // Returns the parameter value if it is already an EX.
 	}
@@ -95,4 +98,19 @@ func NewEXErrorConverter(next ErrorConverter) ErrorConverter {
 	converter := &exErrorConverter{}
 	converter.SetNext(next)
 	return converter
+}
+
+// BuildErrorConverterChain creates a chain of error converters.
+// The chain starts ExErrorConverter, then the provided converters, and ends with UnknownErrorConverter.
+func BuildErrorConverterChain(converters ...ErrorConverter) ErrorConverter {
+	if len(converters) == 0 {
+		return NewEXErrorConverter(NewUnknownErrorConverter())
+	}
+	converter := converters[0]
+	for i := 1; i < len(converters); i++ {
+		converters[i].SetNext(converter)
+		converter = converters[i]
+	}
+	converter.SetNext(NewUnknownErrorConverter())
+	return NewEXErrorConverter(converters[0])
 }

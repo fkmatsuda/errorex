@@ -145,23 +145,21 @@ func TestEXConverter(t *testing.T) {
 	t.Run("should test a chain", func(t *testing.T) {
 		RegisterErrorCode(ErrCodeMockError, "test description", MockErrorDetail{})
 
-		converter := &mockErrorConverter{}
-		converter.SetNext(NewUnknownErrorConverter())
-
-		exConverter := NewEXErrorConverter(converter)
+		converter := BuildErrorConverterChain(&mockErrorConverter{})
 
 		ex := New(ErrCodeMockError, MockErrorDetail{Detail: "test detail"})
-		exc := exConverter.ConvertError(ex)
+		exc := converter.ConvertError(ex)
 		assert.Equal(t, ex.Error(), exc.Error())
 		assert.True(t, Is(exc, ErrCodeMockError))
 
 		err := fmt.Errorf("test error")
-		expectedMessage := exConverter.ConvertError(err)
+		expectedMessage := converter.ConvertError(err)
 		assert.True(t, Is(expectedMessage, ErrCodeMockError))
 
 		err = fmt.Errorf("unknown error")
-		unknownError := exConverter.ConvertError(err)
+		unknownError := converter.ConvertError(err)
 		assert.True(t, Is(unknownError, ErrCodeUnknownError))
+
 	})
 
 	t.Run("base converter should return nil if there is no next handler", func(t *testing.T) {
@@ -178,6 +176,14 @@ func TestEXConverter(t *testing.T) {
 		err := fmt.Errorf("test error")
 		unknownError := converter.ConvertError(err)
 		assert.True(t, Is(unknownError, ErrCodeUnknownError))
+	})
+
+	t.Run("ExErrorConverter should return nil when the error is nil", func(t *testing.T) {
+		converter := &mockErrorConverter{}
+		converter.SetNext(NewUnknownErrorConverter())
+
+		exConverter := NewEXErrorConverter(converter)
+		assert.Nil(t, exConverter.ConvertError(nil))
 	})
 
 }
